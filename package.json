@@ -1,0 +1,35 @@
+{
+  "name": "threejs-m33",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "./watch.sh"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./*": "./src/*.js",
+    "./canvas2d/*": "./src/canvas2d/*",
+    "./canvas2d/actors/*": "./src/canvas2d/actors/*",
+    "./css3d/*": "./src/css3d/*",
+    "./css3d/nodes3d/*": "./src/css3d/nodes3d/*",
+    "./modules/*": "./src/modules/*",
+    "./uii/*": "./src/uii/*",
+    "./utils/*": "./src/utils/*",
+    "./web3d/*": "./src/web3d/*",
+    "./web3d/system/*": "./src/web3d/system/*",
+    "./web3d/actor3d/*": "./src/web3d/actor3d/*"
+  },
+  "dependencies": {
+    "three": "^0.182.0",
+    "three-bvh-csg": "^0.0.17",
+    "three-mesh-bvh": "^0.8.3",
+    "three-pathfinding": "^0.9.0",
+    "@dimforge/rapier3d-compat": "^0.12.0",
+    "gsap": "^3.13.0",
+    "earcut": "^3.0.1",
+    "simplex-noise": "^4.0.1",
+    "lil-gui": "^0.20.0",
+    "stats.js": "^0.17.0"
+  }
+}
