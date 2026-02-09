@@ -20,5 +20,3 @@ chromium http://$LOC_HOST:$LOC_PORT \
 # --incognito \
 # --new-window \
 
-
-ln -s "/var/app/m33/src" "/var/app/m33examples/m33"

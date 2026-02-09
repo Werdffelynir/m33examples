@@ -42,6 +42,7 @@ export class SPControl{
     constructor(params = {}) {
         this.enabled =  params?.enabled ?? true;
         this.enabledMouse =  params?.enabledMouse ?? true;
+        this.pointerLock =  params?.pointerLock ?? false;
 
         this.limitDistanceSq = params?.limitDistanceSq ?? 10 * 10
         this.limitRotateSq = params?.limitRotateSq ?? Math.PI / 4
@@ -84,22 +85,26 @@ export class SPControl{
 
         if (this.enabledMouse) {
             this.renderer.domElement.addEventListener('contextmenu', e => {
-                if (e.buttons !== 2 || !this.enabledMouse) return
                 e.preventDefault()
             })
             this.renderer.domElement.addEventListener('mouseup', e => {
-                if (e.buttons !== 2 || !this.enabledMouse) return
+                if ((!this.pointerLock && e.buttons !== 2) || !this.enabledMouse) return;
                 this.inputs.left = false;
                 this.inputs.right = false;
             })
             this.renderer.domElement.addEventListener('mousemove', e => {
-                if (e.buttons !== 2 || !this.enabledMouse) return
+                if ((!this.pointerLock && e.buttons !== 2) || !this.enabledMouse) return;
                 this.yaw   -= e.movementX * 0.002
                 this.pitch -= e.movementY * 0.002
                 this.pitch = Math.max(-1, Math.min(1, this.pitch))
 
                 this.player.rotation.y = this.yaw
                 this.camera.rotation.x = this.pitch
+            });
+
+            this.renderer.domElement.addEventListener('click',()=>{
+                if (!this.pointerLock || !this.enabledMouse ) return;
+                this.renderer.domElement.requestPointerLock();
             });
         }
     }
@@ -143,21 +148,21 @@ export class SPControl{
 
         this.update = ( dt => {
 
-            // if (
-            //     !this.inputs.forward &&
-            //     !this.inputs.backward &&
-            //     !this.inputs.r &&
-            //     !this.inputs.f &&
-            //     !this.inputs.up &&
-            //     !this.inputs.down &&
-            //     !this.inputs.left &&
-            //     !this.inputs.right &&
-            //     !this.inputs.jump &&
-            //     !this.inputs.space &&
-            //     !this.inputs.shift &&
-            //     !this.inputs.ctrl
-            //     ) return;
-
+            if (
+                !this.inputs.forward &&
+                !this.inputs.backward &&
+                !this.inputs.r &&
+                !this.inputs.f &&
+                // !this.inputs.up &&
+                // !this.inputs.down &&
+                !this.inputs.left &&
+                !this.inputs.right &&
+                // !this.inputs.jump &&
+                // !this.inputs.space &&
+                // !this.inputs.ctrl &&
+                !this.inputs.shift
+                ) return this.ismoved = false;
+            this.ismoved = true;
             
             // this.player.rotation.y = this.yaw
             // this.camera.rotation.x = this.pitch
@@ -198,17 +203,29 @@ export class SPControl{
         const mat = new THREE.MeshBasicMaterial({color: new THREE.Color('#bbc37c')})
         character.name = 'player'
 
-        const bodyGeo = new THREE.BoxGeometry(0.25, 2, 0.15)
+        const bodyGeo = new THREE.BoxGeometry(0.25, height, 0.15)
         const body = new THREE.Mesh(bodyGeo, mat)
         body.name = 'body'
 
 
 
-        const faceGeo = new THREE.BoxGeometry(0.5, 0.10, 0.2)
+        const faceGeo = new THREE.BoxGeometry(0.25, 0.10, 0.2)
         const face = new THREE.Mesh(faceGeo, mat)
         face.name = 'face'
-        face.position.y = 0.75
-        face.position.z = -0.35
+        face.position.y = 0.8
+        face.position.z = -0.1
+
+
+        // const bobs = new THREE.Group()
+        // bobs.name = 'bobs'
+        // const bobsGeo = new THREE.SphereGeometry(0.1, 6, 8)
+        // const bob1 = new THREE.Mesh( bobsGeo, mat )
+        // const bob2 = new THREE.Mesh( bobsGeo, mat )
+        // bob1.position.set(-0.1, -0.2, 0)
+        // bob2.position.set(0.1, -0.2, 0)
+        // bobs.add(bob1)
+        // bobs.add(bob2)
+        // face.add(bobs)
 
 
         const arr = new THREE.ArrowHelper(
@@ -233,7 +250,7 @@ export class SPControl{
         flashlight.visible = false
         flashlight.name = 'flashlight'
         flashlight.position.set(0, 1, 1)
-        flashlight.target.position.set(1, -1, -10)
+        flashlight.target.position.set(1, -0.5, -10)
         character.add( flashlight )
         character.add( flashlight.target )
 

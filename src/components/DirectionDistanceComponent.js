@@ -1,7 +1,7 @@
 import {ReaComponent} from "engine/ReaComponent.js";
 import {EventBus} from "engine/EventBus.js";
 import {Ut} from "engine/Ut.js";
-import {loadScene, loadTexture} from "engine/web3d/Ut3D.js";
+import {loadScene, loadTexture, canvasTexture} from "engine/web3d/Ut3D.js";
 import {Temporary} from "engine/utils/Temporary.js";
 
 import * as THREE from "three";
@@ -24,8 +24,19 @@ const CSS = `
 `;
 
 const HTML = `
-div.absolute.top: ""
+div.absolute.top
+  div.w-200px.h-200px.absolute.top[data-id=comapass]
 `;
+
+
+export const Layers = {
+  WORLD:      0, 
+  PLAYER:     1, 
+  NPC:        2, 
+  TRIGGER:    3, 
+  INTERACTIVE:4,
+  RAMP:       5,
+};
 
 export class DirectionDistanceComponent extends ReaComponent {
 
@@ -39,10 +50,10 @@ export class DirectionDistanceComponent extends ReaComponent {
             state: {
             	player: true,
             	firstPerson: false,
+            	pointerLock: false,
             },
             parent: this.register.rootScreenElement,
         });
-
     }
 
     onMount () {
@@ -61,44 +72,49 @@ export class DirectionDistanceComponent extends ReaComponent {
 
     createRender () {
 		let scene = new THREE.Scene();
-		let camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 1, 1000);
+		let camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 200);
 		let renderer = new THREE.WebGLRenderer({antialias: false});
 
 		renderer.setSize(innerWidth, innerHeight);
-		renderer.setClearColor(0x404040);
+		// renderer.setClearColor(0x404040);
 
 		this.scene = scene
 		this.camera = camera
 		this.renderer = renderer
 
 
-		camera.position.set(0, 10, 20);
+		camera.position.set(5, 3, -5);
 
 
-        const lightHem = new THREE.HemisphereLight('#f1e9fc', '#000000', 2)
+        const lightHem = new THREE.HemisphereLight('#999999', '#000000', 0.5)
         lightHem.position.set(0,5,0)
         scene.add(lightHem)
+
 
         // const lightDir = new THREE.DirectionalLight('#b691e9', 4)
         // lightDir.position.set(3, 5, 8)
         // scene.add(lightDir)
-
-        scene.add(new THREE.GridHelper(10, 2, 0xf1e9fc, 0xf1e9fc))
-
-
-
-		this.setGameController()
-
 		// renderer.setAnimationLoop( _ => {
 		// 	renderer.render(scene, camera);
 		// })
 
-		function createCompas( count, color){
-			let group = new THREE.Group()
-		}
-		function createPlane( step = 1, color = 0xcd10bc){
-			let geo = new THREE.PlaneGeometry(step, step, 25, 25)
-			let mat = new THREE.MeshBasicMaterial({color: color});
+		// Night env
+
+        const darknessColor = 0x000000
+        scene.background = darknessColor
+        scene.fog = new THREE.FogExp2( darknessColor, 0.018 );
+
+
+        // scene.add(new THREE.GridHelper(10, 2, 0xf1e9fc, 0xf1e9fc))
+
+
+
+		const {camCtrl, spCtrl} = this.setGameController()
+
+
+		function createPlane( step = 10, color = '#645a3c'){
+			let geo = new THREE.PlaneGeometry(step, step, 1, 1)
+			let mat = new THREE.MeshStandardMaterial({color: color});
 			let mesh = new THREE.Mesh(geo, mat);
 			return mesh;
 		}
@@ -208,7 +224,7 @@ export class DirectionDistanceComponent extends ReaComponent {
 		const buildBox3 = []
 	    const cubeOrigin = createBuild()
 
-		for (var i = 0; i < 10; i++) {
+		for (var i = 0; i < 5; i++) {
 
 	    	const cube = cubeOrigin.clone()
 
@@ -231,38 +247,115 @@ export class DirectionDistanceComponent extends ReaComponent {
 			scene.add(cube);
 		}
 
+
+
+		const ground = createPlane()
+		ground.rotateX(-1.57079)
+		ground.scale.setScalar(10)
+		scene.add(ground)
+
+		const comapass = this.createCompas(spCtrl)
+
+		this.register.onUpdate((dt, i) => {
+			comapass.update(dt, i)
+		    // if (box3.intersectsBox(buildBox3[ib])) {
+			// 	intersects = true;
+			// }
+		})
+
 		renderer.render(scene, camera);
 		return renderer;
     }
 
+    createCompas (spCtrl) {
+		const WORLD_NORTH = new THREE.Vector3(0, 0, -1);
+		const WORLD_EAST  = new THREE.Vector3(1, 0, 0);
+
+		const compScene = new THREE.Scene();
+		const compCamera =  new THREE.OrthographicCamera( -1, 1, 1, -1, 0.1, 100 );
+		const compRenderer = new THREE.WebGLRenderer({antialias: false});
+		compCamera.position.set(0, 0, 1)
+		compRenderer.setSize(200, 200);
+		compRenderer.setClearColor(0x505050);
+		
+		this.elements["comapass"].appendChild( compRenderer.domElement );
+
+		const tx = canvasTexture ((ctx)=>{
+			ctx.fillStyle = '#ffffff'
+			ctx.fillText("N", 100, 20)
+			ctx.fillText("S", 100, 180)
+			ctx.fillText("E", 180, 100)
+			ctx.fillText("W", 20, 100)
+		}, 200, 200) 
+
+		// CircleGeometry( 5, 32 ); SphereGeometry( 15, 32, 16 );
+		// const geo = new THREE.PlaneGeometry(2, 2, 1, 1)
+		const geo = new THREE.CircleGeometry(1, 12)
+		const mat = new THREE.MeshStandardMaterial({color: 0xffffff, map: tx});
+		tx.needsUpdate = true
+		const mesh = new THREE.Mesh(geo, mat)
+
+		mesh.position.set(0, 0, 0)
+
+
+		compScene.add( new THREE.HemisphereLight('#f1e9fc', '#000000', 2) );
+		compScene.add( mesh );
+		compRenderer.render(compScene, compCamera);
+
+
+	    const forward = new THREE.Vector3(0, 0, -1)
+
+	    // v1.angleTo(v2)
+		// const dot = forward.dot(WORLD_NORTH);
+		// const cross = WORLD_NORTH.cross(forward);
+		return {
+			update: (dt, i) => {
+				if (spCtrl.ismoved) {
+					forward.set(0, 0, -1)
+					forward.applyQuaternion(spCtrl.player.quaternion).normalize();
+
+					let ang = WORLD_NORTH.angleTo(forward)
+
+					if (forward.cross(WORLD_NORTH).y < 0) ang *= -1
+
+					mesh.rotation.z = ang
+				}
+
+				compRenderer.render(compScene, compCamera);
+			}
+		}
+		
+    }
 
     setGameController () {
     	const camera = this.camera
     	const scene = this.scene
     	const renderer = this.renderer
 
+		let camCtrl, spCtrl = null; 
 
 		if (!this.state.firstPerson) {
 
-			const controls = new OrbitControls(camera, renderer.domElement);
+			camCtrl = new OrbitControls(camera, renderer.domElement);
 
-			controls.addEventListener('change', (e) => {
+			camCtrl.addEventListener('change', (e) => {
 				renderer.render(scene, camera);
 			})
 
-			// controls.listenToKeyEvents(window); 			
-			// controls.enableKeys = true;
-			// controls.keyPanSpeed = 100.0;
-			// controls.keys = {
+			// camCtrl.listenToKeyEvents(window); 			
+			// camCtrl.enableKeys = true;
+			// camCtrl.keyPanSpeed = 100.0;
+			// camCtrl.keys = {
 			//     LEFT: "KeyA",
 			//     UP: "KeyW",
 			//     RIGHT: "KeyD",
 			//     DOWN: "KeyS"
 			// };
-			// controls.screenSpacePanning = false;  
-			// controls.target = camera.position.clone().add(new THREE.Vector3(0, 0,-5))
-			
-			controls.update();
+			// camCtrl.screenSpacePanning = false;  
+			// camCtrl.target = camera.position.clone().add(new THREE.Vector3(0, 0,-5))
+
+			camCtrl.update();
+
 		}
 
 
@@ -270,30 +363,28 @@ export class DirectionDistanceComponent extends ReaComponent {
 
 			const keyman = this.register.inputs.keyboardManager
 
-			const control = new SPControl({
+			spCtrl = new SPControl({
 				renderer: renderer,
 				scene: scene,
 				camera: camera,
 				inputs: this.register.inputs.keyboardManager.keys,
 				moveSpeed: 1.5,
-				turnSpeed: 1.2,
-				enabledMouse: true,
+				turnSpeed: 3,
+				enabledMouse: this.state.firstPerson,
+				pointerLock: this.state.pointerLock,
 			})
 
-			scene.add(control.player)
+			scene.add(spCtrl.player)
 
 			if (this.state.firstPerson) {
 				// First Person View. In constructor need set enabledMouse = true
-				camera.position.set(0,1.5,2)
-				control.player.getObjectByName("face").add(camera)
+				camera.position.set(0, 1, 0.55)
+				spCtrl.player.getObjectByName("face").add(camera)
 			}
 
 			this.register.onUpdate((dt, i) => {
-			    // if (box3.intersectsBox(buildBox3[ib])) {
-				// 	intersects = true;
-				// }
 
-				control.update(dt)
+				spCtrl.update(dt)
 
 				renderer.render(scene, camera);
 			})
@@ -303,14 +394,16 @@ export class DirectionDistanceComponent extends ReaComponent {
 				console.log("played: ", this.register.looper.played)
 			})
 			keyman.onKeyJust("KeyL", () => {
-				console.log("Flashlight: ", control.player.enableFlashlight())
+				console.log("Flashlight: ", spCtrl.player.enableFlashlight())
 			})
 			keyman.onKeyJust("KeyM", () => {
-				console.log("Mark: ", control.player.enableMark())
+				console.log("Mark: ", spCtrl.player.enableMark())
 			})
         }
 
-
+        return {
+        	camCtrl, spCtrl
+        }
     }
 }
 
