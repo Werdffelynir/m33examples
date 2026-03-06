@@ -1,7 +1,7 @@
-import {ReaComponent} from "engine/ReaComponent.js";
-import {EventBus} from "engine/EventBus.js";
-import {Ut} from "engine/Ut.js";
-import {loadScene, loadTexture} from "engine/web3d/Ut3D.js";
+import {ReaComponent} from "m33/ReaComponent.js";
+import {EventBus} from "m33/EventBus.js";
+import {Ut} from "m33/Ut.js";
+import {loadScene, loadTexture} from "m33/web3d/Ut3D.js";
 
 import * as THREE from "three";
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';

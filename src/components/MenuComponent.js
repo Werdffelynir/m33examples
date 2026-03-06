@@ -1,5 +1,5 @@
-import {ReaComponent} from "engine/ReaComponent.js";
-import {Doom} from "engine/utils/Doom.js";
+import {ReaComponent} from "m33/ReaComponent.js";
+import {Doom} from "m33/utils/Doom.js";
 
 
 const CSS = `

@@ -98,15 +98,28 @@ export class GenTunnelComponent extends ReaComponent {
 		// controls.screenSpacePanning = false;  
 		// controls.target = camera.position.clone().add(new THREE.Vector3(0, 0,-5))
 		// controls.update();
-
 		// renderer.setAnimationLoop( _ => { renderer.render(scene, camera) })
+		// this.tunnel(renderer, scene, camera)
 
-		this.tunnel(renderer, scene, camera)
+		this.drawPoint(renderer, scene, camera)
 
 		renderer.render(scene, camera);
 		return renderer;
     }
 
+    drawPoint (renderer, scene, camera) {
+		const pts = [
+		  new THREE.Vector3(0,0,0),
+		  new THREE.Vector3(2,0,1),
+		  new THREE.Vector3(-1,0,2),
+		]
+
+		const geo = new THREE.BufferGeometry().setFromPoints(pts)
+		const mat = new THREE.PointsMaterial({ size: 0.1, color: 0xff0000 })
+
+		const points = new THREE.Points(geo, mat)
+		scene.add(points)
+    }
 	// /var/app/m33examples/src/resources/textures/floorBoard_S_Diffuse.jpg
 	// /var/app/m33examples/src/resources/textures/floorBoard_S_Normal.jpg
 	// /var/app/m33examples/src/resources/textures/retro/BRICK_4A.PNG
@@ -169,8 +182,6 @@ export class GenTunnelComponent extends ReaComponent {
 				0,0,-3,-1,-5,-3,-6,-6,-6,-9,-5,-12,-3,-14,0,-15,3,-15,6,-14,8,-12,9,-9,9,-6,8,-3,6,-1,3,0,
 			],
 		}
-
-
 		const f1 = this.addFigure1()
 		// f1.scale.set(0.4, 0.4, 0.4)
 		// f1.position.set(-15, 0, -5)

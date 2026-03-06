@@ -1,11 +1,11 @@
-import {ReaComponent} from "engine/ReaComponent.js";
-import {EventBus} from "engine/EventBus.js";
-import {Ut} from "engine/Ut.js";
-import {LayerManager} from "engine/LayerManager.js";
-import {loadScene, loadTexture, canvasTexture} from "engine/web3d/Ut3D.js";
-import {Graphic} from "engine/canvas2d/Graphic.js";
-import {Temporary} from "engine/utils/Temporary.js";
-import {Noise} from "engine/utils/Noise.js";
+import {ReaComponent} from "m33/ReaComponent.js";
+import {EventBus} from "m33/EventBus.js";
+import {Ut} from "m33/Ut.js";
+import {LayerManager} from "m33/LayerManager.js";
+import {loadScene, loadTexture, canvasTexture} from "m33/web3d/Ut3D.js";
+import {Graphic} from "m33/canvas2d/Graphic.js";
+import {Temporary} from "m33/utils/Temporary.js";
+import {Noise} from "m33/utils/Noise.js";
 
 
 const CSS = `
