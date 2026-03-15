@@ -18,13 +18,14 @@ import {GenTunnelComponent} from "./components/GenTunnelComponent.js";
 
 
 import {ControlPlayerSimple2Component} from "./components/ControlPlayerSimple2Component.js";
-import {ControlPlayer4VariusComponent} from "./components/ControlPlayer4VariusComponent.js";
+import {ControlPlayer4VariousComponent} from "./components/ControlPlayer4VariousComponent.js";
 import {DirectionDistanceComponent} from "./components/DirectionDistanceComponent.js";
+import {WaterAnimationComponent} from "./components/WaterAnimationComponent.js";
 import {AnimationLoop} from "../m33/AnimationLoop.js";
 
 
 
-
+//
 // import {SimpleRaycastControlPlayerComponent} from "./components/SimpleRaycastControlPlayerComponent.js"; // todo
 // import {SimpleControlPlayerComponent} from "./components/SimpleControlPlayerComponent.js"; // todo
 
@@ -107,10 +108,12 @@ game.registerComponents({
     ExtrudeShapes: new GenShapesComponent(game, {menu: true, title: "Gen. Shapes  - ExtrudeGeometry"}),
 
     ControlPlayerSimple2: new ControlPlayerSimple2Component(game, {menu: true, title: "Control Player Simple 2. example"}),
-    ControlPlayer4Varius: new ControlPlayer4VariusComponent(game, {menu: true, title: "Control Player. 4 Variues examples"}),
+    ControlPlayer4Various: new ControlPlayer4VariousComponent(game, {menu: true, title: "Control Player. 4 Various examples"}),
 
-    GenTunelBasic: new GenTunnelComponent(game, {menu: true, title: "TODO Gen. Tunels, Vents - BufferGeometry (vertix, indexes, uv)"}),
+    GenTunnelBasic: new GenTunnelComponent(game, {menu: true, title: "TODO Gen. Tunnels, Vents - BufferGeometry (vertix, indexes, uv)"}),
     DirectionDistance: new DirectionDistanceComponent(game, {menu: true, title: "TODO Math. direction distance dot cross"}),
+
+    WaterAnimationComponent: new WaterAnimationComponent(game, {menu: true, title: "Water Animation with one normals map"}),
 
     // SimpleRaycastControlPlayer: new SimpleRaycastControlPlayerComponent(game, {menu: true, title: "Simple example of Camera Control Player with Ground Raycaster"}),
 });
@@ -119,8 +122,8 @@ game.registerComponents({
 await game.setup()
 
 
-if (location.hash.length > 1) {
-    game.components.get(location.hash.slice(1)).mount()
+if (location.search.length > 1) {
+    game.components.get(location.search.slice(1)).mount()
 } else {
     game.components.get("Menu").mount()
 }

@@ -51,7 +51,8 @@ export class MenuComponent extends ReaComponent {
             			this.currentCompo = compoName
 						this.unmount()
 						this.register.components.get(compoName).mount()
-						location.hash = compoName
+						// location.href = "?" + compoName
+						location.search = compoName
             		}
             	}
             },
@@ -65,6 +66,7 @@ export class MenuComponent extends ReaComponent {
 
             if (event.state && this.currentCompo) {
 				this.register.components.get(this.currentCompo).unmount()
+
 				this.mount()
             }
         };

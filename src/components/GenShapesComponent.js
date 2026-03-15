@@ -260,11 +260,11 @@ export class GenShapesComponent extends ReaComponent {
 			],
 			extrude: {
 				depth: 3,
-				// bevelEnabled: true,
-				// bevelThickness: -1.5,
-				// bevelSize: 1.5,
-				// bevelOffset: -1.5,
-				// bevelSegments: 10,
+				bevelEnabled: true,
+				bevelThickness: -1.5,
+				bevelSize: 1.5,
+				bevelOffset: -1.5,
+				bevelSegments: 10,
 			}
 		})
 

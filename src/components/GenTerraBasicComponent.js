@@ -83,7 +83,6 @@ export class GenTerraBasicComponent extends ReaComponent {
         lightDir.position.set(5, 5, -8)
         scene.add(lightDir)
 
-
         // scene.add(new THREE.GridHelper(10))
 
         const terran = this.createTerran()

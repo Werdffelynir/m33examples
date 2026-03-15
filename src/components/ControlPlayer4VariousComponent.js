@@ -10,6 +10,7 @@ import {SimplexNoise} from 'three/addons/math/SimplexNoise.js';
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {FBXLoader} from "three/addons/loaders/FBXLoader.js";
 import {HDRLoader} from "three/addons/loaders/HDRLoader.js";
+import { GUI } from 'lil-gui';
 
 
 const CSS = `
@@ -26,7 +27,7 @@ const HTML = `
 div.absolute.top: ""
 `;
 
-export class ControlPlayer4VariusComponent extends ReaComponent {
+export class ControlPlayer4VariousComponent extends ReaComponent {
 
     create() {
 
@@ -38,6 +39,7 @@ export class ControlPlayer4VariusComponent extends ReaComponent {
             },
             parent: this.register.rootScreenElement,
         });
+
 
     }
 
@@ -133,6 +135,18 @@ export class ControlPlayer4VariusComponent extends ReaComponent {
         let inputX = 0
 
 
+        this.controlVariant = 1
+
+        this.gui = new GUI();
+
+        this.gui.add( this, 'controlVariant',  {
+            'Variant = 1': 1,
+            'Variant = 2': 2,
+            'Variant = 3': 3,
+            'Variant = 4': 4,
+        } ).onChange((variant) => {
+            console.log(variant)
+        });
 
         // fake FPS limitter
         const dt = 0.016
@@ -152,55 +166,65 @@ export class ControlPlayer4VariusComponent extends ReaComponent {
                 !keymap.right.pressed &&
                 !keymap.left.pressed) return;
 
+            switch (this.controlVariant) {
 // VAR 1
-            forwardDir.set(0, 0, -1) // reset dir
-            forwardDir.applyQuaternion(player.quaternion);
-            forwardDir.y = 0;
-            forwardDir.normalize();
-            if (keymap.up.pressed) player.position.addScaledVector(forwardDir, moveSpeed * dt);
-            if (keymap.down.pressed) player.position.addScaledVector(forwardDir, -moveSpeed * dt);
-            if (keymap.right.pressed) player.rotation.y -= turnSpeed * dt
-            if (keymap.left.pressed) player.rotation.y += turnSpeed * dt
+                case 1:
+                    forwardDir.set(0, 0, -1) // reset dir
+                    forwardDir.applyQuaternion(player.quaternion);
+                    forwardDir.y = 0;
+                    forwardDir.normalize();
+                    if (keymap.up.pressed) player.position.addScaledVector(forwardDir, moveSpeed * dt);
+                    if (keymap.down.pressed) player.position.addScaledVector(forwardDir, -moveSpeed * dt);
+                    if (keymap.right.pressed) player.rotation.y -= turnSpeed * dt
+                    if (keymap.left.pressed) player.rotation.y += turnSpeed * dt
+                    break;
 
-
+                case 2:
 // VAR 2
-            // if (keymap.left.pressed)  yaw += turnSpeed * dt;
-            // if (keymap.right.pressed) yaw -= turnSpeed * dt;
-            // player.rotation.y = yaw;
-            // forwardDir.set(0, 0, -1)
-            // forwardDir.applyAxisAngle(upperDir, yaw);
-            // if (keymap.up.pressed) player.position.addScaledVector(forwardDir, moveSpeed * dt);
-            // if (keymap.down.pressed) player.position.addScaledVector(forwardDir, -moveSpeed * dt);
+                    if (keymap.left.pressed)  yaw += turnSpeed * dt;
+                    if (keymap.right.pressed) yaw -= turnSpeed * dt;
+                    player.rotation.y = yaw;
+                    forwardDir.set(0, 0, -1)
+                    forwardDir.applyAxisAngle(upperDir, yaw);
+                    if (keymap.up.pressed) player.position.addScaledVector(forwardDir, moveSpeed * dt);
+                    if (keymap.down.pressed) player.position.addScaledVector(forwardDir, -moveSpeed * dt);
+                    break;
+
+                case 3:
+// VAR 3 ( press L and R for follow forward )
+                    if (keymap.up.pressed)      inputZ = -1
+                    if (keymap.down.pressed)    inputZ = 1
+                    if (keymap.right.pressed)   yaw += -(moveSpeed * dt)
+                    if (keymap.left.pressed)    yaw += (moveSpeed * dt)
+                    const dir2 = new THREE.Vector3(inputX, 0, inputZ);
+                    if (dir2.lengthSq() > 1) dir2.normalize();
+                    const sinYaw = Math.sin(yaw);
+                    const cosYaw = Math.cos(yaw);
+                    const moveX = dir2.x * cosYaw + dir2.z * sinYaw;
+                    const moveZ = -dir2.x * sinYaw + dir2.z * cosYaw;
+                    velocity.x = moveX * moveSpeed;
+                    velocity.z = moveZ * moveSpeed;
+                    player.rotation.y = yaw;
+                    player.position.addScaledVector(velocity, dt);
+                    break;
+
+                case 4:
+// VAR 4 ( press L and R for follow forward )
+                    if (keymap.up.pressed)      inputZ = -1
+                    if (keymap.down.pressed)    inputZ = 1
+                    if (keymap.right.pressed)   yaw += -(moveSpeed * dt)
+                    if (keymap.left.pressed)    yaw += (moveSpeed * dt)
+                    const dir3 = new THREE.Vector3(inputX, 0, inputZ);
+                    if (dir3.lengthSq() > 1) dir3.normalize();
+                    dir3.applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+                    velocity.copy(dir3).multiplyScalar(moveSpeed);
+                    player.rotation.y = yaw;
+                    player.position.addScaledVector(velocity, dt);
+
+                    break;
 
 
-// VAR 3 ( press L and R for follow forward ) 
-            // if (keymap.up.pressed)      inputZ = -1
-            // if (keymap.down.pressed)    inputZ = 1
-            // if (keymap.right.pressed)   yaw += -(moveSpeed * dt)
-            // if (keymap.left.pressed)    yaw += (moveSpeed * dt)
-            // const dir = new THREE.Vector3(inputX, 0, inputZ);
-            // if (dir.lengthSq() > 1) dir.normalize();
-            // const sinYaw = Math.sin(yaw);
-            // const cosYaw = Math.cos(yaw);
-            // const moveX = dir.x * cosYaw + dir.z * sinYaw;
-            // const moveZ = -dir.x * sinYaw + dir.z * cosYaw;
-            // velocity.x = moveX * moveSpeed;
-            // velocity.z = moveZ * moveSpeed;
-            // player.rotation.y = yaw;
-            // player.position.addScaledVector(velocity, dt);
-
-
-// VAR 4 ( press L and R for follow forward ) 
-            // if (keymap.up.pressed)      inputZ = -1
-            // if (keymap.down.pressed)    inputZ = 1
-            // if (keymap.right.pressed)   yaw += -(moveSpeed * dt)
-            // if (keymap.left.pressed)    yaw += (moveSpeed * dt)
-            // const dir = new THREE.Vector3(inputX, 0, inputZ);
-            // if (dir.lengthSq() > 1) dir.normalize();
-            // dir.applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
-            // velocity.copy(dir).multiplyScalar(moveSpeed);
-            // player.rotation.y = yaw;
-            // player.position.addScaledVector(velocity, dt);
+            }
 
 
 			this.renderer.render(scene, camera);
