@@ -254,7 +254,7 @@ export class DirectionDistanceComponent extends ReaComponent {
 		ground.scale.setScalar(10)
 		scene.add(ground)
 
-		const comapass = this.createCompas(spCtrl)
+		const comapass = this.createCompass(spCtrl)
 
 		this.register.onUpdate((dt, i) => {
 			comapass.update(dt, i)
@@ -267,10 +267,9 @@ export class DirectionDistanceComponent extends ReaComponent {
 		return renderer;
     }
 
-    createCompas (spCtrl) {
+    createCompass (spCtrl) {
 		const WORLD_NORTH = new THREE.Vector3(0, 0, -1);
 		const WORLD_EAST  = new THREE.Vector3(1, 0, 0);
-
 		const compScene = new THREE.Scene();
 		const compCamera =  new THREE.OrthographicCamera( -1, 1, 1, -1, 0.1, 100 );
 		const compRenderer = new THREE.WebGLRenderer({antialias: false});
@@ -297,11 +296,9 @@ export class DirectionDistanceComponent extends ReaComponent {
 
 		mesh.position.set(0, 0, 0)
 
-
 		compScene.add( new THREE.HemisphereLight('#f1e9fc', '#000000', 2) );
 		compScene.add( mesh );
 		compRenderer.render(compScene, compCamera);
-
 
 	    const forward = new THREE.Vector3(0, 0, -1)
 

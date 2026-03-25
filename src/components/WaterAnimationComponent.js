@@ -14,8 +14,8 @@ import { GUI } from 'lil-gui';
 
 import {
     createCameraControl,
-    createLights,
-    createRenderBandle,
+    addLights,
+    createRenderBundle,
     createSimpleAnimation
 } from "./basic.js";
 
@@ -64,13 +64,13 @@ export class WaterAnimationComponent extends ReaComponent {
 
     createRender () {
 
-        const {renderer, scene, camera} = createRenderBandle({grid: false})
+        const {renderer, scene, camera} = createRenderBundle({grid: false})
         this.control = createCameraControl(renderer, scene, camera)
         this.renderer = renderer
         this.scene = scene
         this.camera = camera
 
-        this.lights = createLights (scene)
+        this.lights = addLights (scene)
         this.lights.helpersOff()
 
         this.createWater()

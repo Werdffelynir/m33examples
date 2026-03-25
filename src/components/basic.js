@@ -9,12 +9,12 @@ import {HDRLoader} from "three/addons/loaders/HDRLoader.js";
 
 /*
 Use:
-import {createCameraControl, createLights, createRenderBandle} from "./basic.js";
+import {createCameraControl, addLights, createRenderBundle} from "./basic.js";
 
 
-const {renderer, scene, camera} = createRenderBandle()
+const {renderer, scene, camera} = createRenderBundle()
 const {control} = createCameraControl(renderer, scene, camera)
-const {hemisphere, directional, helpersOff, helpersOn} = createLights (scene)
+const {hemisphere, directional, helpersOff, helpersOn} = addLights (scene)
 */
 
 export function createCameraControl (renderer, scene, camera) {
@@ -31,14 +31,14 @@ export function createCameraControl (renderer, scene, camera) {
 
 
 
-export function createLights (scene, helpers = true) {
+export function addLights (scene, helpers = true) {
 
     const lightHem = new THREE.HemisphereLight('#f1e9fc', '#000000', 2)
     lightHem.position.set(0, 5, 0)
     scene.add(lightHem)
 
     const lightDir = new THREE.DirectionalLight('#82bbdc', 2)
-    lightDir.position.set(3, 5, -8)
+    lightDir.position.set(3, 5, 8)
     scene.add(lightDir)
 
     const lightHemHelp = new THREE.HemisphereLightHelper(lightHem)
@@ -65,7 +65,7 @@ export function createLights (scene, helpers = true) {
 
 
 
-export function createRenderBandle ({
+export function createRenderBundle ({
     grid = {size: 10, division: 10},
 } = {}) {
 
@@ -125,4 +125,30 @@ export function createSimpleAnimation (fps = 30, callback, keyStartCode = "Space
     }
 
     return () => {animate(0)}
+}
+
+
+export async function multiGLTFLoader(srcObject, callback) {
+
+    const loader = new GLTFLoader();
+    const entries = Object.entries(srcObject);
+
+    try {
+
+        const models = await Promise.all(
+            entries.map(([name, url]) => {
+                const model = loader.loadAsync(url)
+                callback?.(model, name)
+                return model
+            })
+        );
+
+        return Object.fromEntries(
+            entries.map(([name], index) => [name, models[index]])
+        );
+
+    } catch (error) {
+        console.error(error)
+        throw error;
+    }
 }

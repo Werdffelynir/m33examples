@@ -10,7 +10,7 @@ import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {FBXLoader} from "three/addons/loaders/FBXLoader.js";
 import {HDRLoader} from "three/addons/loaders/HDRLoader.js";
 
-import {createCameraControl, createLights, createRenderBandle} from "./basic.js";
+import {createCameraControl, addLights, createRenderBundle} from "./basic.js";
 
 
 const CSS = `
@@ -61,11 +61,11 @@ export class Def_2_Component extends ReaComponent {
 
     createRender () {
 
-        const {renderer, scene, camera} = createRenderBandle()
+        const {renderer, scene, camera} = createRenderBundle()
 
         this.control = createCameraControl(renderer, scene, camera)
 
-        this.lights = createLights (scene)
+        this.lights = addLights (scene)
         this.lights.helpersOff()
 
         this.createObjects(scene)

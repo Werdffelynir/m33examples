@@ -22,6 +22,7 @@ import {ControlPlayer4VariousComponent} from "./components/ControlPlayer4Various
 import {DirectionDistanceComponent} from "./components/DirectionDistanceComponent.js";
 import {WaterAnimationComponent} from "./components/WaterAnimationComponent.js";
 import {AnimationLoop} from "../m33/AnimationLoop.js";
+import {AnimationCharacterComponent} from "./components/AnimationCharacterComponent.js";
 
 
 
@@ -32,7 +33,7 @@ import {AnimationLoop} from "../m33/AnimationLoop.js";
 
 const game = new Register({
     config: {
-        fps: 20,
+        fps: 36,
         width: window.innerWidth,
         height: window.innerHeight,
         preload: [],
@@ -81,8 +82,6 @@ game.looper = new AnimationLoop({
     fixedDelta: 1 / game.config.fps,
     timeScale: 1
 });
-// game.looper.start()
-
 
 
 
@@ -114,6 +113,7 @@ game.registerComponents({
     DirectionDistance: new DirectionDistanceComponent(game, {menu: true, title: "TODO Math. direction distance dot cross"}),
 
     WaterAnimationComponent: new WaterAnimationComponent(game, {menu: true, title: "Water Animation with one normals map"}),
+    AnimationCharacter: new AnimationCharacterComponent(game, {menu: true, title: "Example create Character Animation"}),
 
     // SimpleRaycastControlPlayer: new SimpleRaycastControlPlayerComponent(game, {menu: true, title: "Simple example of Camera Control Player with Ground Raycaster"}),
 });
@@ -127,4 +127,11 @@ if (location.search.length > 1) {
 } else {
     game.components.get("Menu").mount()
 }
+
+
+game.inputs.keyboardManager.onKeyJust("Space", () => {
+    game.looper.togglePause()
+    console.log("ANIMATION IS " + (game.looper.played ? "PLAYED" : "STOPED") )
+})
+
 

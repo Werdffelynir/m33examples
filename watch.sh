@@ -12,9 +12,9 @@ chromium http://$LOC_HOST:$LOC_PORT \
   & php -S $LOC_HOST:$LOC_PORT
 
 
+# --ignore-gpu-blacklist \
 # --enable-gpu \
 # --enable-native-gpu-memory-buffers \
-# --ignore-gpu-blacklist \
 # --max-texture-size=16384 \
 # --force-gpu-mem-available-mb=2048 \
 # --incognito \
