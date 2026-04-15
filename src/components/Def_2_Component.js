@@ -64,6 +64,9 @@ export class Def_2_Component extends ReaComponent {
         const {renderer, scene, camera} = createRenderBundle()
 
         this.control = createCameraControl(renderer, scene, camera)
+        this.renderer = renderer;
+        this.camera = camera;
+        this.scene = scene;
 
         this.lights = addLights (scene)
         this.lights.helpersOff()

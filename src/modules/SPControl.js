@@ -78,7 +78,8 @@ export class SPControl{
         this.head = this.player.getObjectByName("face")
         this.ctrl ()
 
-
+        this.camera.position.set(0.5, 0.8, 2)
+        this.head.add(this.camera)
 
         this.yaw = 0
         this.pitch = 0
@@ -88,21 +89,45 @@ export class SPControl{
                 e.preventDefault()
             })
             this.renderer.domElement.addEventListener('mouseup', e => {
-                if ((!this.pointerLock && e.buttons !== 2) || !this.enabledMouse) return;
+                if (!this.enabled) return;
+                if (!this.enabledMouse) return;
+
+                this.ismousemove = false;
+
+                if (e.buttons !== 2 || e.buttons !== 4) return;
+                // if ((!this.pointerLock && e.buttons !== 2) || !this.enabledMouse) return;
                 this.inputs.left = false;
                 this.inputs.right = false;
             })
             this.renderer.domElement.addEventListener('mousemove', e => {
-                if ((!this.pointerLock && e.buttons !== 2) || !this.enabledMouse) return;
-                this.yaw   -= e.movementX * 0.002
-                this.pitch -= e.movementY * 0.002
-                this.pitch = Math.max(-1, Math.min(1, this.pitch))
+                if (!this.enabled) return;
+                // if ((!this.pointerLock && e.buttons !== 2) || !this.enabledMouse) return;
+                if (!this.enabledMouse) return;
 
-                this.player.rotation.y = this.yaw
-                this.camera.rotation.x = this.pitch
+
+                if (e.buttons === 2) {
+                    this.yaw   -= e.movementX * 0.002
+                    this.pitch -= e.movementY * 0.002
+
+                    const minPolarAngle = -Math.PI / 2 + 0.1;
+                    const maxPolarAngle = Math.PI / 2 - 0.1;
+                    this.pitch = Math.max(minPolarAngle, Math.min(maxPolarAngle, this.pitch));
+                    this.head.rotation.y = this.yaw;
+                    this.camera.rotation.x = this.pitch;
+                    this.ismousemove = true;
+                }
+                if (e.buttons === 4) {
+                    this.camera.position.x -= e.movementX * 0.002
+                    this.camera.position.y += e.movementY * 0.002
+                    this.ismousemove = true;
+                }
+                // this.pitch = Math.max(-1, Math.min(1, this.pitch))
+                // this.player.rotation.y = this.yaw
+                // this.camera.rotation.x = this.pitch
             });
 
-            this.renderer.domElement.addEventListener('click',()=>{
+            this.renderer.domElement.addEventListener('click', ()=>{
+                if (!this.enabled) return;
                 if (!this.pointerLock || !this.enabledMouse ) return;
                 this.renderer.domElement.requestPointerLock();
             });
@@ -120,7 +145,7 @@ export class SPControl{
 
 
         const getDirection = (fromVec3, toVec3) => toVec3.position.clone().sub(fromVec3.position).normalize()
-
+        this.getDirection = getDirection;
 
         const getDirectionLengthSq = (fromVec3, toVec3) => {
             const dir = toVec3.position.clone().sub(fromVec3.position)
@@ -147,6 +172,10 @@ export class SPControl{
         let speed = this.moveSpeed
 
         this.update = ( dt => {
+            if (!this.enabled) return;
+
+           // console.log(this.ismousemove)
+           // if (!this.ismousemove ) this.updateCameraRotation(getForward(this.player).add(new THREE.Vector3(0,2,5)), dt)
 
             if (
                 !this.inputs.forward &&
@@ -162,6 +191,7 @@ export class SPControl{
                 // !this.inputs.ctrl &&
                 !this.inputs.shift
                 ) return this.ismoved = false;
+
             this.ismoved = true;
             
             // this.player.rotation.y = this.yaw
@@ -195,7 +225,48 @@ export class SPControl{
 
     }
 
+    cameraTargetQuaternion = new THREE.Quaternion();
+    cameraRotationMatrix = new THREE.Matrix4();
+    CAMERA_STOP_THRESHOLD = 0.001;
+    updateCameraRotation(targetPosition, deltaTime) {
+        if (!targetPosition) return;
 
+        const targetPos = targetPosition.isVector3 ? targetPosition : targetPosition.position;
+
+        // 1. Отримуємо позицію цілі ВІДНОСНО плеєра (локально)
+        // Це вирішує проблему світових vs локальних координат
+        const localTarget = new THREE.Vector3();
+        this.player.worldToLocal(localTarget.copy(targetPos));
+
+        // Позиція голови локально (зазвичай це просто висота, напр. 0, 1.6, 0)
+        const localHeadPos = this.head.position;
+        const direction = new THREE.Vector3().subVectors(localTarget, localHeadPos).normalize();
+
+        // 2. Обчислюємо цільові локальні кути
+        let targetYaw = Math.atan2(direction.x, direction.z); // Локальний Yaw
+        let targetPitch = Math.asin(direction.y);             // Локальний Pitch
+
+        // 3. ВИРІШЕННЯ ПРОБЛЕМИ "СТРИБКА" КУТІВ (Shortest Path)
+        // Щоб камера не крутилась на 360 градусів при переході через PI
+        const diffYaw = targetYaw - this.yaw;
+        const wrappedDiffYaw = Math.atan2(Math.sin(diffYaw), Math.cos(diffYaw));
+
+        const speed = 3.0;
+        const threshold = 0.001;
+
+        // 4. Плавне наближення
+        if (Math.abs(wrappedDiffYaw) > threshold) {
+            this.yaw += wrappedDiffYaw * speed * deltaTime;
+            this.head.rotation.y = this.yaw;
+        }
+
+        const diffPitch = targetPitch - this.pitch;
+        if (Math.abs(diffPitch) > threshold) {
+            this.pitch += diffPitch * speed * deltaTime;
+            this.camera.rotation.x = this.pitch;
+        }
+
+    }
 
     createCharacter ({position}) {
         const height = 2

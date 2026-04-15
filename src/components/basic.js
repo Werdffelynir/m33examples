@@ -128,6 +128,33 @@ export function createSimpleAnimation (fps = 30, callback, keyStartCode = "Space
 }
 
 
+export async function multiTextureLoader(srcObject, callback) {
+    /**@type {THREE.Texture} */
+    const textureLoader = new THREE.TextureLoader();
+    const entries = Object.entries(srcObject);
+
+    try {
+        const texture = await Promise.all(
+            entries.map(([name, url]) => {
+                const tx = textureLoader.loadAsync(url)
+                tx.wrapS = THREE.RepeatWrapping
+                tx.wrapT = THREE.RepeatWrapping
+
+                tx.repeat.set(repeated, repeated);
+                callback?.(tx, name)
+                return tx
+            })
+        );
+        return Object.fromEntries(
+            entries.map(([name], index) => [name, texture[index]])
+        );
+    } catch (error) {
+        console.error(error)
+        throw error;
+    }
+}
+
+
 export async function multiGLTFLoader(srcObject, callback) {
 
     const loader = new GLTFLoader();
@@ -152,3 +179,31 @@ export async function multiGLTFLoader(srcObject, callback) {
         throw error;
     }
 }
+
+
+export async function multiFBXLoader(srcObject, callback) {
+
+    const loader = new FBXLoader();
+    const entries = Object.entries(srcObject);
+
+    try {
+
+        const models = await Promise.all(
+            entries.map(([name, url]) => {
+                const model = loader.loadAsync(url)
+                callback?.(model, name)
+                return model
+            })
+        );
+
+        return Object.fromEntries(
+            entries.map(([name], index) => [name, models[index]])
+        );
+
+    } catch (error) {
+        console.error(error)
+        throw error;
+    }
+}
+
+

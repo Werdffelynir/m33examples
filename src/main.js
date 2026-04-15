@@ -23,6 +23,8 @@ import {DirectionDistanceComponent} from "./components/DirectionDistanceComponen
 import {WaterAnimationComponent} from "./components/WaterAnimationComponent.js";
 import {AnimationLoop} from "../m33/AnimationLoop.js";
 import {AnimationCharacterComponent} from "./components/AnimationCharacterComponent.js";
+import {InstancedMeshesComponent} from "./components/InstancedMeshesComponent.js";
+import {WorldSceneComponent} from "./components/WorldSceneComponent.js";
 
 
 
@@ -114,6 +116,8 @@ game.registerComponents({
 
     WaterAnimationComponent: new WaterAnimationComponent(game, {menu: true, title: "Water Animation with one normals map"}),
     AnimationCharacter: new AnimationCharacterComponent(game, {menu: true, title: "Example create Character Animation"}),
+    InstancedMeshesComponent: new InstancedMeshesComponent(game, {menu: true, title: "Examples Trees InstancedMeshes"}),
+    WorldSceneComponent: new WorldSceneComponent(game, {menu: true, title: "World Scene GBL"}),
 
     // SimpleRaycastControlPlayer: new SimpleRaycastControlPlayerComponent(game, {menu: true, title: "Simple example of Camera Control Player with Ground Raycaster"}),
 });
@@ -123,7 +127,8 @@ await game.setup()
 
 
 if (location.search.length > 1) {
-    game.components.get(location.search.slice(1)).mount()
+    game.currentPageComponentName = location.search.slice(1)
+    game.components.get(game.currentPageComponentName).mount()
 } else {
     game.components.get("Menu").mount()
 }
@@ -132,6 +137,18 @@ if (location.search.length > 1) {
 game.inputs.keyboardManager.onKeyJust("Space", () => {
     game.looper.togglePause()
     console.log("ANIMATION IS " + (game.looper.played ? "PLAYED" : "STOPED") )
+})
+
+
+game.inputs.keyboardManager.onKeyJust("KeyZ", () => {
+    const renderer = game.components.get(game.currentPageComponentName)?.renderer
+    if (!renderer) return;
+    const info = `
+geometries/textures: ${renderer.info.memory.geometries}/${renderer.info.memory.textures}
+calls: ${renderer.info.render.calls}
+trian: ${renderer.info.render.triangles}
+    `
+    console.log(info)
 })
 
 

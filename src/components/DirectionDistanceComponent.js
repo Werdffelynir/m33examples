@@ -48,8 +48,8 @@ export class DirectionDistanceComponent extends ReaComponent {
             template: HTML,
             css: CSS,
             state: {
-            	player: true,
-            	firstPerson: false,
+            	// player: true,
+            	firstPerson: true,
             	pointerLock: false,
             },
             parent: this.register.rootScreenElement,
@@ -83,7 +83,7 @@ export class DirectionDistanceComponent extends ReaComponent {
 		this.renderer = renderer
 
 
-		camera.position.set(5, 3, -5);
+		// camera.position.set(5, 3, -5);
 
 
         const lightHem = new THREE.HemisphereLight('#999999', '#000000', 0.5)
@@ -307,7 +307,7 @@ export class DirectionDistanceComponent extends ReaComponent {
 		// const cross = WORLD_NORTH.cross(forward);
 		return {
 			update: (dt, i) => {
-				if (spCtrl.ismoved) {
+				if (spCtrl?.ismoved) {
 					forward.set(0, 0, -1)
 					forward.applyQuaternion(spCtrl.player.quaternion).normalize();
 
@@ -356,7 +356,7 @@ export class DirectionDistanceComponent extends ReaComponent {
 		}
 
 
-        if (this.state.player) {
+        if (this.state.firstPerson) {
 
 			const keyman = this.register.inputs.keyboardManager
 
@@ -373,11 +373,11 @@ export class DirectionDistanceComponent extends ReaComponent {
 
 			scene.add(spCtrl.player)
 
-			if (this.state.firstPerson) {
-				// First Person View. In constructor need set enabledMouse = true
-				camera.position.set(0, 1, 0.55)
-				spCtrl.player.getObjectByName("face").add(camera)
-			}
+			// if (this.state.firstPerson) {
+			// 	// First Person View. In constructor need set enabledMouse = true
+			// 	// camera.position.set(0, 1, 0.55)
+			// 	spCtrl.player.getObjectByName("face").add(camera)
+			// }
 
 			this.register.onUpdate((dt, i) => {
 

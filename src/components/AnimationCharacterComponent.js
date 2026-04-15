@@ -43,6 +43,7 @@ export class AnimationCharacterComponent extends ReaComponent {
             parent: this.register.rootScreenElement,
         });
 
+        this.currentModel = 'xbot'
     }
 
     onMount() {
@@ -141,19 +142,24 @@ export class AnimationCharacterComponent extends ReaComponent {
 
     addModelObjects(models) {
 
-        const gui = new GUI();
 
         // console.log(models)
         models.residence.scene.position.set(5, 0, -10)
         models.residence.scene.rotateY(1.57079)
 
         this.scene.add(models.residence.scene)
-        this.scene.add(models.woman.scene)
+        this.scene.add(models[this.currentModel].scene)
 
-        this.createAnimationHandler(models.woman)
+        this.createAnimationHandler(models[this.currentModel])
 
+        const gui = new GUI();
+        this.registerGUI (gui)
 
-        // GUI
+        this.refresh()
+    }
+
+    registerGUI (gui) {
+
         this.actionMain = "None"
         gui.add( this, 'actionMain', this.actions).onChange( action => {
             console.log( action ); //
@@ -195,31 +201,31 @@ export class AnimationCharacterComponent extends ReaComponent {
                 sneak_pose: this.actions.sneak_pose,
             })
                 .onChange( action => {
-                if (action === false && this._lastMixAction) {
-                    this._lastMixAction.paused = false;
-                    this._lastMixAction.timeScale = -0.1;
-                    return this._lastMixAction.play();
-                }
+                    if (action === false && this._lastMixAction) {
+                        this._lastMixAction.paused = false;
+                        this._lastMixAction.timeScale = -0.1;
+                        return this._lastMixAction.play();
+                    }
 
-                if (!this._additiveClip || this._additiveClip.name !== action.getClip().name) {
+                    if (!this._additiveClip || this._additiveClip.name !== action.getClip().name) {
 
-                    if (this._additiveClip && this._lastMixAction)
-                        this._lastMixAction.stop();
+                        if (this._additiveClip && this._lastMixAction)
+                            this._lastMixAction.stop();
 
-                    this._additiveClip = AnimationUtils.makeClipAdditive(action.getClip(), 0);
-                }
+                        this._additiveClip = AnimationUtils.makeClipAdditive(action.getClip(), 0);
+                    }
 
-                const breatheAction = this.mixer.clipAction(this._additiveClip);
+                    const breatheAction = this.mixer.clipAction(this._additiveClip);
 
-                breatheAction.reset();
-                breatheAction.enabled = true;
-                breatheAction.clampWhenFinished = true;
-                breatheAction.timeScale = 0.1
-                breatheAction.loop = THREE.LoopOnce // (LoopOnce, LoopRepeat, LoopPingPong)
-                breatheAction.play()
+                    breatheAction.reset();
+                    breatheAction.enabled = true;
+                    breatheAction.clampWhenFinished = true;
+                    breatheAction.timeScale = 0.1
+                    breatheAction.loop = THREE.LoopOnce // (LoopOnce, LoopRepeat, LoopPingPong)
+                    breatheAction.play()
 
-                this._lastMixAction = breatheAction
-            })
+                    this._lastMixAction = breatheAction
+                })
 
 
             this.animationMixWeight = 0.5
@@ -231,9 +237,7 @@ export class AnimationCharacterComponent extends ReaComponent {
 
         gui.add(this, 'globalLoopToggle').name('looper.toggle');
 
-        this.refresh()
     }
-
     globalLoopToggle () {
         this.register.looper.togglePause()
     }
