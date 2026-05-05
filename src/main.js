@@ -72,6 +72,7 @@ const game = new Register({
 })
 
 
+
 game.userUpdates = new Set()
 game.onUpdate = (cb) => { game.userUpdates.add(cb) }
 game.looper = new AnimationLoop({
@@ -85,6 +86,11 @@ game.looper = new AnimationLoop({
     timeScale: 1
 });
 
+game.looper._subscribes = new Map()
+game.looper._subscribes.set('played', new Set())
+game.looper._subscribes.set('paused', new Set())
+game.looper.subscribe = (type, cb) => game.looper._subscribes.get(type).add(cb)
+game.looper.unsubscribe = (type, cb) => game.looper._subscribes.get(type).delete(cb)
 
 
 game.registerModules({
@@ -117,7 +123,7 @@ game.registerComponents({
     WaterAnimationComponent: new WaterAnimationComponent(game, {menu: true, title: "Water Animation with one normals map"}),
     AnimationCharacter: new AnimationCharacterComponent(game, {menu: true, title: "Example create Character Animation"}),
     InstancedMeshesComponent: new InstancedMeshesComponent(game, {menu: true, title: "Examples Trees InstancedMeshes"}),
-    WorldSceneComponent: new WorldSceneComponent(game, {menu: true, title: "World Scene GBL"}),
+    WorldSceneComponent: new WorldSceneComponent(game, {menu: true, title: "World Audio Environment Scene GBL"}),
 
     // SimpleRaycastControlPlayer: new SimpleRaycastControlPlayerComponent(game, {menu: true, title: "Simple example of Camera Control Player with Ground Raycaster"}),
 });
@@ -134,9 +140,14 @@ if (location.search.length > 1) {
 }
 
 
+
 game.inputs.keyboardManager.onKeyJust("Space", () => {
     game.looper.togglePause()
-    console.log("ANIMATION IS " + (game.looper.played ? "PLAYED" : "STOPED") )
+
+    console.log("ANIMATION IS " + (game.looper.played ? "PLAYED" : "PAUSED") )
+
+    if (game.looper.played) game.looper._subscribes.get('played').forEach(cb => cb())
+    else game.looper._subscribes.get('paused').forEach(cb => cb())
 })
 
 

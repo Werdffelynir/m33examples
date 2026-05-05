@@ -1,5 +1,6 @@
 import {Module} from "../../m33/Module.js";
 import * as THREE from "three";
+import {multiGLTFLoader} from "../components/basic.js";
 
 /*
 
@@ -74,12 +75,66 @@ export class SPControl{
             dig3: false,
         };
 
-        this.player = this.createCharacter({position: new THREE.Vector3(0, 1, 0)})
-        this.head = this.player.getObjectByName("face")
-        this.ctrl ()
+        // this.player = this.createCharacter({position: new THREE.Vector3(0, 1, 0)})
+        // this.head = this.player.getObjectByName("face")
+        // this.camera.position.set(0.5, 0.8, 2)
+        // this.head.add(this.camera)
+        // params.scene.add(this.player)
+        // this.ctrl ()
 
-        this.camera.position.set(0.5, 0.8, 2)
-        this.head.add(this.camera)
+
+        this.actions = {};
+        /** @type {THREE.AnimationAction} */ this.currentAction = null
+        this.currentActionName = null
+        this.startAnimation = (name = 'idle', duration = 0.1, timeScale = 1.0) => {
+            if (!this?.mixer) return;
+            if (this.currentActionName === name) return;
+            if (this.currentAction ) {
+                this.currentAction.fadeOut(duration);
+
+            }
+            this.currentActionName = name;
+            this.currentAction = this.actions[name];
+
+            this.currentAction.reset()
+                .setEffectiveTimeScale(1)
+                .setEffectiveWeight(1)
+                .fadeIn(duration)
+                .setEffectiveTimeScale(timeScale)
+                .play();
+
+        }
+        // this.startAnimation('walk')
+        // this.startAnimation('idle')
+        // this.startAnimation('run')
+
+        multiGLTFLoader({
+            character: '/src/resources/models/Xbot.glb',
+        }).then(models => {
+            console.log(models)
+            this.mixer = new THREE.AnimationMixer( models.character.scene );
+            models.character.animations.forEach((clip) => {
+                this.actions[clip.name] = this.mixer.clipAction(clip);
+            });
+
+            this.player = models.character.scene
+            this.player.children[0].rotateY(3.1415)
+
+            this.head = new THREE.Object3D()
+            this.head.position.set(0, 1, 0)
+            this.player.add(this.head )
+
+            this.camera.position.set(0.5, 0.8, 2)
+            this.head.add(this.camera)
+
+            params.scene.add(this.player)
+            this.startAnimation('idle')
+
+            this.ctrl ()
+        })
+
+
+
 
         this.yaw = 0
         this.pitch = 0
@@ -186,11 +241,16 @@ export class SPControl{
                 // !this.inputs.down &&
                 !this.inputs.left &&
                 !this.inputs.right &&
+                // !this.inputs.q &&
+                // !this.inputs.e &&
                 // !this.inputs.jump &&
                 // !this.inputs.space &&
                 // !this.inputs.ctrl &&
                 !this.inputs.shift
-                ) return this.ismoved = false;
+                ) {
+                this.startAnimation('idle')
+                return this.ismoved = false;
+            }
 
             this.ismoved = true;
             
@@ -203,17 +263,26 @@ export class SPControl{
 
 
             if (speed !== this.moveSpeed) speed = this.moveSpeed
-            if (this.inputs.shift) speed *= 3
+            if (this.inputs.shift) {
+                speed *= 3
+                this.startAnimation('run')
+            }
 
 
 
             if (this.inputs.forward) {
                 this.player.position.addScaledVector(getPlayerDirection(), speed * dt)
+
+                if (!this.inputs.shift)
+                    this.startAnimation('walk', 0.1, 0.9)
             }
             if (this.inputs.backward) {
-                this.player.position.addScaledVector(getPlayerDirection(), -speed * dt)
-            }
+                speed /= 2
 
+                this.player.position.addScaledVector(getPlayerDirection(), -speed * dt)
+
+                this.startAnimation('walk', 0.1, -0.45)
+            }
 
             if (this.inputs.r) this.player.position.y += this.moveSpeed * dt
             if (this.inputs.f) this.player.position.y -= this.moveSpeed * dt
@@ -269,7 +338,7 @@ export class SPControl{
     }
 
     createCharacter ({position}) {
-        const height = 2
+        const height = 1.7
         const character = new THREE.Group()
         const mat = new THREE.MeshBasicMaterial({color: new THREE.Color('#bbc37c')})
         character.name = 'player'
@@ -283,7 +352,7 @@ export class SPControl{
         const faceGeo = new THREE.BoxGeometry(0.25, 0.10, 0.2)
         const face = new THREE.Mesh(faceGeo, mat)
         face.name = 'face'
-        face.position.y = 0.8
+        face.position.y = 0.6
         face.position.z = -0.1
 
 

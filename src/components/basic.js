@@ -4,6 +4,7 @@ import {ImprovedNoise} from 'three/addons/math/ImprovedNoise.js';
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {FBXLoader} from "three/addons/loaders/FBXLoader.js";
 import {HDRLoader} from "three/addons/loaders/HDRLoader.js";
+import {SPControl} from "../modules/SPControl.js";
 
 
 
@@ -17,6 +18,8 @@ const {control} = createCameraControl(renderer, scene, camera)
 const {hemisphere, directional, helpersOff, helpersOn} = addLights (scene)
 */
 
+
+
 export function createCameraControl (renderer, scene, camera) {
 
 
@@ -27,6 +30,39 @@ export function createCameraControl (renderer, scene, camera) {
     })
 
     return controls
+}
+
+export function createCharacterControl (register, renderer, scene, camera) {
+
+    const keyman = register.inputs.keyboardManager
+
+    const controls = new SPControl({
+        renderer: renderer,
+        scene: scene,
+        camera: camera,
+        inputs: register.inputs.keyboardManager.keys,
+        moveSpeed: 1.5,
+        turnSpeed: 3,
+        enabledMouse: true,
+        pointerLock: false,
+    })
+
+    register.onUpdate((dt, i) => {
+        controls.update(dt)
+        renderer.render(scene, camera);
+    })
+
+    keyman.onKeyJust("KeyL", () => {
+        console.log("Flashlight: ", controls.player.enableFlashlight())
+    })
+    keyman.onKeyJust("KeyM", () => {
+        console.log("Mark: ", controls.player.enableMark())
+    })
+
+
+    // scene.add(controls.player)
+
+    return controls;
 }
 
 
@@ -129,7 +165,7 @@ export function createSimpleAnimation (fps = 30, callback, keyStartCode = "Space
 
 
 export async function multiTextureLoader(srcObject, callback) {
-    /**@type {THREE.Texture} */
+    /**@type {THREE.TextureLoader} */
     const textureLoader = new THREE.TextureLoader();
     const entries = Object.entries(srcObject);
 

@@ -102,7 +102,6 @@ export class InstancedMeshesComponent extends ReaComponent {
 
         })
 
-
         // multiFBXLoader({
         //     tree01: "/src/resources/models/tree_pack/models/tree01.fbx",
         //     tree02: "/src/resources/models/tree_pack/models/tree02.fbx",
@@ -133,6 +132,7 @@ export class InstancedMeshesComponent extends ReaComponent {
 
         this.register.onUpdate((dt, i) => {
             this.control.update(dt)
+            this.control?.mixer?.update?.(dt)
             renderer.render(scene, camera);
         })
 
