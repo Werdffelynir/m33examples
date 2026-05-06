@@ -82,7 +82,7 @@ export class InstancedMeshesComponent extends ReaComponent {
             enabledMouse: true,
         })
 
-        scene.add(this.control.player)
+        // scene.add(this.control.player)
 
         this.lights = addLights (scene)
         this.lights.helpersOff()
@@ -132,7 +132,7 @@ export class InstancedMeshesComponent extends ReaComponent {
 
         this.register.onUpdate((dt, i) => {
             this.control.update(dt)
-            this.control?.mixer?.update?.(dt)
+
             renderer.render(scene, camera);
         })
 

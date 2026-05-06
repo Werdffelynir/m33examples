@@ -17,7 +17,7 @@ import {createCameraControl, addLights, createRenderBundle, multiGLTFLoader, cre
 const CSS = `
 @layer page {
 
-    @scope(#WorldSceneComponent) {
+    @scope(#AudioWorldSceneComponent) {
         
     }
 
@@ -29,7 +29,7 @@ div.absolute.top: ""
 `;
 
 
-export class WorldSceneComponent extends ReaComponent {
+export class AudioWorldSceneComponent extends ReaComponent {
 
     create() {
         this.bus = new EventBus()
@@ -99,9 +99,9 @@ export class WorldSceneComponent extends ReaComponent {
         }).then(models => {
             this.reository = models;
             this.createObjects(scene, models)
+            this.updateRenderer()
         })
 
-        this.updateRenderer()
 
         return renderer;
 
@@ -128,12 +128,11 @@ export class WorldSceneComponent extends ReaComponent {
         //     debugView.style.width = volume + 'px';
         // }
         //
-        this.register.onUpdate((delta, iteration) => {
-            this.control?.mixer?.update?.(delta);
-            if (!this.analyser) return;
-            if (iteration % 25 === 0 && this?.showDebugView) this.showDebugView()
-        })
-
+        // this.register.onUpdate((delta, iteration) => {
+        //     // this.control?.mixer?.update?.(delta);
+        //     if (!this.analyser) return;
+        //     if (iteration % 25 === 0 && this?.showDebugView) this.showDebugView()
+        // })
 
         /** @type {THREE.Group} */
         const landscape = models.landscape.scene

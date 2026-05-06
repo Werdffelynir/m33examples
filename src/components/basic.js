@@ -12,7 +12,6 @@ import {SPControl} from "../modules/SPControl.js";
 Use:
 import {createCameraControl, addLights, createRenderBundle} from "./basic.js";
 
-
 const {renderer, scene, camera} = createRenderBundle()
 const {control} = createCameraControl(renderer, scene, camera)
 const {hemisphere, directional, helpersOff, helpersOn} = addLights (scene)

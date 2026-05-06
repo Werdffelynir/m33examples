@@ -24,7 +24,8 @@ import {WaterAnimationComponent} from "./components/WaterAnimationComponent.js";
 import {AnimationLoop} from "../m33/AnimationLoop.js";
 import {AnimationCharacterComponent} from "./components/AnimationCharacterComponent.js";
 import {InstancedMeshesComponent} from "./components/InstancedMeshesComponent.js";
-import {WorldSceneComponent} from "./components/WorldSceneComponent.js";
+import {AudioWorldSceneComponent} from "./components/AudioWorldSceneComponent.js";
+import {AudioWithInstancedMeshesComponent} from "./components/AudioWithInstancedMeshesComponent.js";
 
 
 
@@ -123,7 +124,8 @@ game.registerComponents({
     WaterAnimationComponent: new WaterAnimationComponent(game, {menu: true, title: "Water Animation with one normals map"}),
     AnimationCharacter: new AnimationCharacterComponent(game, {menu: true, title: "Example create Character Animation"}),
     InstancedMeshesComponent: new InstancedMeshesComponent(game, {menu: true, title: "Examples Trees InstancedMeshes"}),
-    WorldSceneComponent: new WorldSceneComponent(game, {menu: true, title: "World Audio Environment Scene GBL"}),
+    AudioWorldSceneComponent: new AudioWorldSceneComponent(game, {menu: true, title: "Audio in World Scene GBL"}),
+    AudioWithInstancedMeshesComponent: new AudioWithInstancedMeshesComponent(game, {menu: true, title: "Audio in World Scene + InstancedMeshes trees"}),
 
     // SimpleRaycastControlPlayer: new SimpleRaycastControlPlayerComponent(game, {menu: true, title: "Simple example of Camera Control Player with Ground Raycaster"}),
 });

@@ -227,6 +227,7 @@ export class SPControl{
         let speed = this.moveSpeed
 
         this.update = ( dt => {
+            this?.mixer?.update?.(dt)
             if (!this.enabled) return;
 
            // console.log(this.ismousemove)
@@ -263,18 +264,18 @@ export class SPControl{
 
 
             if (speed !== this.moveSpeed) speed = this.moveSpeed
-            if (this.inputs.shift) {
+            if (this.inputs.shift && !this.inputs.backward) {
                 speed *= 3
+
                 this.startAnimation('run')
             }
-
-
 
             if (this.inputs.forward) {
                 this.player.position.addScaledVector(getPlayerDirection(), speed * dt)
 
-                if (!this.inputs.shift)
+                if (!this.inputs.shift) {
                     this.startAnimation('walk', 0.1, 0.9)
+                }
             }
             if (this.inputs.backward) {
                 speed /= 2
@@ -292,6 +293,16 @@ export class SPControl{
 
         })
 
+    }
+
+    get isRunning () {
+        return this.enabled && (this.inputs.shift && !this.inputs.backward)
+    }
+    get isWalking () {
+        return this.enabled && (!this.inputs.shift && this.inputs.forward)
+    }
+    get isWalkingBack () {
+        return this.enabled && (this.inputs.backward)
     }
 
     cameraTargetQuaternion = new THREE.Quaternion();
