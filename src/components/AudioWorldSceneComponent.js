@@ -95,7 +95,7 @@ export class AudioWorldSceneComponent extends ReaComponent {
             // dam: "/src/resources/models/dam-on-the-river.glb",
             // xbot: "/src/resources/models/Xbot.glb",
             // tree_pack: "/src/resources/models/tree_pack.glb",
-            landscape: "/src/resources/scenes/Waterland.scene.glb",
+            landscape: "/src/resources/scenes/WaterlandEmpty.scene.glb",
         }).then(models => {
             this.reository = models;
             this.createObjects(scene, models)
